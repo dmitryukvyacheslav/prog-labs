@@ -46,8 +46,8 @@ void __throw_index_OOB_error(size_t index, size_t size) {
    * и аварийно завершаем программу при выходе за границы */
   // TODO: сделать вывод имени фунции, в которой произошла ошибка, вместе с её
   // параметрами
-  printf("[IV] Guru meditaton.\n\tAttempted to access index (%llu) that is out "
-         "of bounds (max index is %llu).",
+  printf("[IV] Guru meditaton.\n\tAttempted to access index (%zu) that is out "
+         "of bounds (max index is %zu).",
          index, size - 1);
   exit(-1);
 }
@@ -100,34 +100,24 @@ int int_vector_resize(IntVector *v, size_t new_size) {
   
   // Размер МОЖЕТ расти в другую сторону
   // но перевыделения памяти не происходит - просто уменьшаем размер
-  if (new_size <= v->size && new_size >= 0) {
+  if (new_size <= v->size) {
     v->size = new_size;
     return 0;
   }
 
   // Увеличиваем ёмкость, если новому размеру её не хватает
   if (new_size > v->cap)
-    if (int_vector_reserve(v, v->cap + (new_size - v->size)))
+    if (int_vector_reserve(v, v->cap + (new_size-(v->cap))))
       return -1; // не получилось
-      
-  int oldsize = v->size;
   v->size = new_size;
-
-  // Инициализируем добавленные элементы нулями
-  for (int i = oldsize+1; i < (int)(v->size); i+=1){
-    int_vector_set_item(v, i, 0);
-  }
 
   return 0;
 }
 
 int int_vector_push_back(IntVector *v, int item) {
   // увеличиваем ёмкость, если нам её не хватает
-  printf("debil1");
-  printf("[%lld] [%lld]", int_vector_get_size(v), int_vector_get_capacity(v));
-  if (int_vector_get_size(v) == int_vector_get_capacity(v)){
-    printf("debil2"); 
-    if (int_vector_reserve(v, v->cap*2))
+  if (int_vector_get_size(v) == int_vector_get_capacity(v)){; 
+    if (int_vector_reserve(v, v->cap*2+1))
       return -1;
   }
   v->arr[v->size] = item;
@@ -140,7 +130,7 @@ void int_vector_pop_back(IntVector *v) {
   if (v->size <= 0)
     return;
   // Занулить последний элемент и уменьшить размер
-  int_vector_set_item(v, v->size, 0);
+  int_vector_set_item(v, v->size-1, 0);
   v->size--;
   return;
 }
@@ -159,6 +149,5 @@ int int_vector_shrink_to_fit(IntVector *v) {
     v->cap = v->size;
   }
   else free(v->arr);
-  printf("ok");
   return 0;
 }

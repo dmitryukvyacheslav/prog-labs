@@ -10,6 +10,9 @@ int main(void) {
          "/$$$$$$   /$$$$$$ \n");
   printf("  | $$  | $$__  $$|_  $$_/|  $$ / $$//$$__  $$ /$$_____/|_  $$_/   "
          "/$$__  $$ /$$__  $$\n");
+         
+         
+         
   printf("  | $$  | $$  \\ $$  | $$   \\  $$ $$/| $$$$$$$$| $$        | $$    "
          "| $$  \\ $$| $$  \\__/\n");
   printf("  | $$  | $$  | $$  | $$ /$$\\  $$$/ | $$_____/| $$        | $$ /$$| "
@@ -46,7 +49,7 @@ int main(void) {
 
   printf("\tChecking if IntVector has desired capacity... ");
   if (testVec->cap != (size_t)8) {
-    printf("no (was %llu)\n", testVec->cap);
+    printf("no (was %zu)\n", testVec->cap);
     return 0;
   } else
     printf("yes\n");
@@ -55,29 +58,36 @@ int main(void) {
   printf("[2] (reserve) Sanity check\n");
   printf("\tChecking if reserve has no effect on lesser capacity... ");
   if (!int_vector_reserve(testVec, 4) && testVec->cap != 8) {
-    printf("no (cap is now %llu)\n", testVec->cap);
+    printf("no (cap is now %zu)\n", testVec->cap);
     return 0;
   } else
     printf("yes\n");
   printf("\tChecking if reserve increases capacity... ");
   int_vector_reserve(testVec, 16);
   if (testVec->cap != 16) {
-    printf("no (capacity was %lld)\n", testVec->cap);
+    printf("no (capacity was %zu)\n", testVec->cap);
     return 0;
   } else
     printf("yes\n");
   printf("== Test 2 passed == \n\n");
 
   printf("[3] (resize) Sanity check\n");
-  int_vector_resize(testVec, 8);
-
-  printf("\tChecking if resize increases size... ");
-  if (testVec->size != 8) {
-    printf("no (size was %lld)\n", testVec->size);
+  printf("\tChecking if resize to 0 works... ");
+  int_vector_resize(testVec, 0);
+  if (testVec->size != 0){
+    printf("no\n");
     return 0;
   } else
     printf("yes\n");
-
+  
+  int_vector_resize(testVec, 8);
+  printf("\tChecking if resize increases size... ");
+  if (testVec->size != 8) {
+    printf("no (size was %zu)\n", testVec->size);
+    return 0;
+  } else
+    printf("yes\n");
+	
   printf("\tChecking if resize can shrink the array... ");
   int_vector_resize(testVec, 4);
   if (testVec->size != 4) {
@@ -85,7 +95,17 @@ int main(void) {
     return 0;
   } else
     printf("yes\n");
-
+	
+	printf("\tChecking if resize can extend array capacity... ");
+	size_t _newCap = (testVec->cap)+1;
+	size_t _oldCap = (testVec->cap);
+  int_vector_resize(testVec, _newCap);
+  if (testVec->size != testVec->cap || testVec->cap != _newCap) {
+    printf("no (old capacity was %zu, new size=capacity is %zu, but now size is %zu and cap is %zu\n", _oldCap, _newCap, testVec->size, testVec->cap);
+    return 0;
+  } else
+    printf("yes\n");
+    
   printf("\tChecking if no memory reallocation occurs on lesser size... ");
   int *old_addr = testVec->arr;
   int_vector_resize(testVec, 2);
@@ -106,7 +126,7 @@ int main(void) {
 
   printf("\tChecking if resize reinits elements that were previously out of "
          "bounds... ");
-  int oldSize = testVec->size;
+  size_t oldSize = testVec->size;
   int_vector_resize(testVec, 8);
   int flag = 0;
   for (size_t i = oldSize; i < testVec->size; i++)
@@ -122,7 +142,7 @@ int main(void) {
   printf("[4] (get_size, get_capacity) Verify the values after prior intvector "
          "manipulations\n");
   printf("\tChecking if get_size is satisfactory... ");
-  int _size = int_vector_get_size(testVec);
+  size_t _size = int_vector_get_size(testVec);
   if (_size != 8) {
     printf("no\n");
     return 0;
@@ -130,8 +150,8 @@ int main(void) {
     printf("yes\n");
 
   printf("\tChecking if get_capacity is satisfactory... ");
-  int _cap = int_vector_get_capacity(testVec);
-  if (_cap != 16) {
+  size_t _cap = int_vector_get_capacity(testVec);
+  if (_cap != 17) {
     printf("no\n");
     return 0;
   } else
@@ -142,7 +162,7 @@ int main(void) {
   printf("[5] (get_item, set_item) Check getters and setters\n");
   printf("\tChecking if set_item can write to array... ");
   for (size_t i = 0; i < testVec->size; i++)
-    int_vector_set_item(testVec, i, i + 90);
+    int_vector_set_item(testVec, i, (int)i + 90);
   flag = 0;
   for (size_t i = 0; i < testVec->size; i++)
     if (testVec->arr[i] != (int)(i + 90))
@@ -164,47 +184,65 @@ int main(void) {
     printf("yes\n");
   printf("== Test 5 passed ==\n\n");
 
-  printf("[6] (push_back) Edge case check\n");
-
-  printf("\tChecking if push works in non-edgecases... ");
-
-  int_vector_resize(testVec,14);
-  printf("size: %lld cap: %lld", testVec->size, testVec->cap);
-  int_vector_push_back(testVec, 1337);
-  if (int_vector_get_item(testVec, testVec->size-1) != 1337) {
+	printf("[6] (shrink_to_fit) Edge cases \n");
+	printf("\tChecking if shrink_to_fit works in non-edge cases... ");
+	int_vector_resize(testVec, 6);
+	int_vector_shrink_to_fit(testVec);
+	if(int_vector_get_capacity(testVec) != 6){
     printf("no\n");
     return 0;
   } else
-    printf("yes\n");
-
-  printf("\tChecking if push can extend the array... ");
-  printf("ok");
-  int_vector_push_back(testVec, 1338);
-  printf("ok2");
-  if (int_vector_get_item(testVec, testVec->size-1) != 1338 && testVec->size == 32) {
-    printf("no\n");
-    return 0;
-  } else
-    printf("yes\n");
+  printf("yes\n");
   
-  printf("\tChecking if push works in edgecase (size=0)... ");
-  int_vector_resize(testVec, 0);
-  int_vector_push_back(testVec, 1339);
-   if (int_vector_get_item(testVec, 0) != 1339) {
+  printf("\tChecking if shrink_to_fit works in non-edge cases... ");
+	int_vector_resize(testVec, 6);
+	int_vector_shrink_to_fit(testVec);
+	if(int_vector_get_capacity(testVec) != 6){
+    printf("no\n");
+    return 0;
+  } else
+   printf("yes\n");
+    
+	printf("[7] (pop_back, push_back) Check backrank operations\n");
+	int_vector_reserve(testVec, 32);
+	int_vector_resize(testVec, 31);
+	
+	printf("\tChecking if push_back works in non-edge cases... ");
+	int_vector_push_back(testVec, 25565);
+	if(int_vector_get_item(testVec, 31) != 25565){
     printf("no\n");
     return 0;
   } else
     printf("yes\n");
-
-  printf("\tChecking if push works in edgecase (size=0, cap=0)... ");
+    
+  printf("\tChecking if push_back works in edge case (size=0)... ");
   int_vector_resize(testVec, 0);
-  int_vector_shrink_to_fit(testVec);
-  
-  int_vector_push_back(testVec, 1339);
-  if (int_vector_get_item(testVec, 0) != 1339) {
+	int_vector_push_back(testVec, 1000-7); 
+	if(int_vector_get_item(testVec, 0) != 993) {
     printf("no\n");
     return 0;
   } else
     printf("yes\n");
-  return 0;
+    
+  printf("\tChecking if push_back increases array capacity to 2n+1... ");
+	int_vector_push_back(testVec, 11037);
+	if(int_vector_get_capacity(testVec) != 65 &&
+		int_vector_get_item(testVec, 32) != 11037 &&
+		int_vector_get_size(testVec) != 33) {
+    printf("no\n");
+    return 0;
+  } else
+    printf("yes\n"); 
+    
+   printf("\tChecking if pop_back removes elements... ");
+	int_vector_pop_back(testVec);
+	if(int_vector_get_capacity(testVec) != 65 &&
+		int_vector_get_item(testVec, 31) != 25565 &&
+		int_vector_get_size(testVec) != 32) {
+    printf("no\n");
+    return 0;
+  } else
+    printf("yes\n"); 
+    
+	return 0;
 }

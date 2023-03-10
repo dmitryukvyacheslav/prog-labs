@@ -1,0 +1,11 @@
+all: main.o IntVector.o
+	gcc main.o IntVector.o -o ./a.out
+
+main.o: main.cpp
+	gcc -c main.cpp
+
+IntVector.o:
+	gcc -c IntVector.cpp
+
+clean:
+	rm -rf *.o ./a.out
