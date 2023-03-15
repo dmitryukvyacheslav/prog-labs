@@ -20,12 +20,10 @@ IntVector *int_vector_new(size_t initial_capacity) {
 
 IntVector *int_vector_copy(const IntVector *v) {
   /* Выделяем память под массив чисел и стркутуру копии..
-   * Возвращаем NULL, если хотя бы одно не получилось. */
-  IntVector *iv = (IntVector *)malloc(sizeof(IntVector));
-  iv->arr = (int *)malloc(sizeof(int) * v->cap);
-  if (!iv->arr || !iv)
-    return NULL;
-
+   * Возвращаем NULL, если не получилось. */
+  IntVector* iv = int_vector_new(v->cap); 
+  if (iv == NULL) return (IntVector*) NULL;
+    
   /* Если всё получилось,
    * ставим те же длину и ёмкость, копируем содержимое исходного
    * вектора в копию и возвращаем адрес копии. */
@@ -38,10 +36,11 @@ IntVector *int_vector_copy(const IntVector *v) {
 void int_vector_free(IntVector *v) {
   /* Освобождаем память, выделенную под массив числел
    * и под структуру. */
+  free(v->arr);
   free(v);
 }
 
-void __throw_index_OOB_error(size_t index, size_t size) {
+static void __throw_index_OOB_error(size_t index, size_t size) {
   /* Выводим ошибку
    * и аварийно завершаем программу при выходе за границы */
   // TODO: сделать вывод имени фунции, в которой произошла ошибка, вместе с её
@@ -86,30 +85,36 @@ int int_vector_reserve(IntVector *v, size_t new_capacity) {
     return 0;
 
   // Проверяем, сможем ли мы выделить больше памяти
-  int *newarr = (int *)realloc(v->arr, new_capacity);
+  // убился головой об стену когда 3 дня не мог отдебажить забытый множитель
+  // sizeof(int)
+  //int* old_arr = v->arr;
+  int* newarr = (int*) realloc(v->arr, new_capacity*sizeof(int));
   if (!newarr)
     return -1; // не можем :(
-
-  // realloc сам освобождает старую память, как удобно!
   v->arr = newarr;
   v->cap = new_capacity;
   return 0;
 }
 
 int int_vector_resize(IntVector *v, size_t new_size) {
-  
   // Размер МОЖЕТ расти в другую сторону
   // но перевыделения памяти не происходит - просто уменьшаем размер
   if (new_size <= v->size) {
     v->size = new_size;
     return 0;
   }
-
+  
   // Увеличиваем ёмкость, если новому размеру её не хватает
   if (new_size > v->cap)
     if (int_vector_reserve(v, v->cap + (new_size-(v->cap))))
       return -1; // не получилось
+
+  // инициализация новых ячеек
+  size_t old_size = v->size;
   v->size = new_size;
+  for (; old_size < v->size; old_size ++){
+    int_vector_set_item(v, old_size, 0);
+  }
 
   return 0;
 }
@@ -148,6 +153,10 @@ int int_vector_shrink_to_fit(IntVector *v) {
     v->arr = newarr;
     v->cap = v->size;
   }
-  else free(v->arr);
+  else {
+    free(v->arr);
+    v->arr = NULL;
+  }
   return 0;
 }
+ 

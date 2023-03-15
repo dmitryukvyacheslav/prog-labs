@@ -194,15 +194,16 @@ int main(void) {
   } else
   printf("yes\n");
   
-  printf("\tChecking if shrink_to_fit works in non-edge cases... ");
-	int_vector_resize(testVec, 6);
+  printf("\tChecking if shrink_to_fit works in edge cases (size=0)... ");
+	int_vector_resize(testVec, 0);
 	int_vector_shrink_to_fit(testVec);
-	if(int_vector_get_capacity(testVec) != 6){
+  if (testVec->arr != NULL){
     printf("no\n");
     return 0;
   } else
-   printf("yes\n");
-    
+  printf("yes\n");
+  printf("== Test 6 passed ==\n\n");
+
 	printf("[7] (pop_back, push_back) Check backrank operations\n");
 	int_vector_reserve(testVec, 32);
 	int_vector_resize(testVec, 31);
@@ -225,6 +226,7 @@ int main(void) {
     printf("yes\n");
     
   printf("\tChecking if push_back increases array capacity to 2n+1... ");
+  int_vector_resize(testVec, 32);
 	int_vector_push_back(testVec, 11037);
 	if(int_vector_get_capacity(testVec) != 65 &&
 		int_vector_get_item(testVec, 32) != 11037 &&
@@ -234,7 +236,7 @@ int main(void) {
   } else
     printf("yes\n"); 
     
-   printf("\tChecking if pop_back removes elements... ");
+  printf("\tChecking if pop_back removes elements... ");
 	int_vector_pop_back(testVec);
 	if(int_vector_get_capacity(testVec) != 65 &&
 		int_vector_get_item(testVec, 31) != 25565 &&
@@ -242,7 +244,30 @@ int main(void) {
     printf("no\n");
     return 0;
   } else
+    printf("yes\n");  
+  printf("== Test 7 passed ==\n\n");
+
+  printf("[8] (copy) Intvector copy test\n");
+  IntVector* testVec2;
+
+  printf("\tChecking if copy works... ");
+  testVec2 = int_vector_copy(testVec);
+  if (testVec2 == NULL){
+    printf("no\n");
+    return 0;
+  } else
     printf("yes\n"); 
-    
+
+  printf("\tChecking if copy is verbatim... ");
+  if (testVec2->cap != testVec->cap || testVec2->size != testVec->size || memcmp(testVec->arr, testVec2->arr, testVec->size)) {
+    printf("no\n");
+    return 0;
+  } else
+    printf("yes\n"); 
+  printf("== Test 8 passed ==\n");
+  printf("Freeing test vectors... \n");
+  int_vector_free(testVec);
+  int_vector_free(testVec2);
+  printf("\n===== ALL TESTS PASTED =====\n");
 	return 0;
 }
