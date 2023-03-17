@@ -6,9 +6,9 @@
 typedef struct intVector {
   size_t size; // длина массива, она же размер
   size_t cap;  // ёмкость массива
-  int* arr;    // массив чисел
+  int *arr;    // массив чисел
 } IntVector;
-  
+
 /*
  * Создает массив нулевого размера.
  * Параметры:	initial_capacity (size_t) – исходная емкость массива

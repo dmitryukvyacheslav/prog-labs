@@ -4,7 +4,7 @@ IntVector *int_vector_new(size_t initial_capacity) {
   /* Выделяем память под массив чисел и структуру.
    * Возвращает:
    * 	указатель на вектор. */
-  int* arr = (int *) malloc(sizeof(int) * initial_capacity);
+  int *arr = (int *)malloc(sizeof(int) * initial_capacity);
   IntVector *iv = (IntVector *)malloc(sizeof(IntVector));
 
   if (arr == (int *)NULL || iv == (IntVector *)NULL)
@@ -21,9 +21,10 @@ IntVector *int_vector_new(size_t initial_capacity) {
 IntVector *int_vector_copy(const IntVector *v) {
   /* Выделяем память под массив чисел и стркутуру копии..
    * Возвращаем NULL, если не получилось. */
-  IntVector* iv = int_vector_new(v->cap); 
-  if (iv == NULL) return (IntVector*) NULL;
-    
+  IntVector *iv = int_vector_new(v->cap);
+  if (iv == NULL)
+    return (IntVector *)NULL;
+
   /* Если всё получилось,
    * ставим те же длину и ёмкость, копируем содержимое исходного
    * вектора в копию и возвращаем адрес копии. */
@@ -87,8 +88,8 @@ int int_vector_reserve(IntVector *v, size_t new_capacity) {
   // Проверяем, сможем ли мы выделить больше памяти
   // убился головой об стену когда 3 дня не мог отдебажить забытый множитель
   // sizeof(int)
-  //int* old_arr = v->arr;
-  int* newarr = (int*) realloc(v->arr, new_capacity*sizeof(int));
+  // int* old_arr = v->arr;
+  int *newarr = (int *)realloc(v->arr, new_capacity * sizeof(int));
   if (!newarr)
     return -1; // не можем :(
   v->arr = newarr;
@@ -103,16 +104,16 @@ int int_vector_resize(IntVector *v, size_t new_size) {
     v->size = new_size;
     return 0;
   }
-  
+
   // Увеличиваем ёмкость, если новому размеру её не хватает
   if (new_size > v->cap)
-    if (int_vector_reserve(v, v->cap + (new_size-(v->cap))))
+    if (int_vector_reserve(v, v->cap + (new_size - (v->cap))))
       return -1; // не получилось
 
   // инициализация новых ячеек
   size_t old_size = v->size;
   v->size = new_size;
-  for (; old_size < v->size; old_size ++){
+  for (; old_size < v->size; old_size++) {
     int_vector_set_item(v, old_size, 0);
   }
 
@@ -121,12 +122,13 @@ int int_vector_resize(IntVector *v, size_t new_size) {
 
 int int_vector_push_back(IntVector *v, int item) {
   // увеличиваем ёмкость, если нам её не хватает
-  if (int_vector_get_size(v) == int_vector_get_capacity(v)){; 
-    if (int_vector_reserve(v, v->cap*2+1))
+  if (int_vector_get_size(v) == int_vector_get_capacity(v)) {
+    ;
+    if (int_vector_reserve(v, v->cap * 2 + 1))
       return -1;
   }
   v->arr[v->size] = item;
-  v->size+=1;
+  v->size += 1;
   return 0;
 }
 
@@ -135,7 +137,7 @@ void int_vector_pop_back(IntVector *v) {
   if (v->size <= 0)
     return;
   // Занулить последний элемент и уменьшить размер
-  int_vector_set_item(v, v->size-1, 0);
+  int_vector_set_item(v, v->size - 1, 0);
   v->size--;
   return;
 }
@@ -147,16 +149,15 @@ int int_vector_shrink_to_fit(IntVector *v) {
 
   // Выделяем новую память
   // если размер 0 просто освобождаем массив
-  if (v->size != 0){ 
-    int* newarr = (int *)realloc(v->arr, v->size*sizeof(int));
-    if (!newarr) return -1; // не получилось
+  if (v->size != 0) {
+    int *newarr = (int *)realloc(v->arr, v->size * sizeof(int));
+    if (!newarr)
+      return -1; // не получилось
     v->arr = newarr;
     v->cap = v->size;
-  }
-  else {
+  } else {
     free(v->arr);
     v->arr = NULL;
   }
   return 0;
 }
- 
