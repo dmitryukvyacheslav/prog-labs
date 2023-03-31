@@ -1,42 +1,20 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#include "coder.h"
+enum {
+    MaxCodeLength = 4
+};
 
-void showHelp() {
-    printf("Usage:\n\
-coder encode <in-file-name> <out-file-name>\n\
-coder decode <in-file-name> <out-file-name>\n");
-}
+typedef struct {
+    uint8_t code[MaxCodeLength];
+    size_t length;
+} CodeUnits;
 
-int main(int argc, char* argv[]){
-    FILE* input_file = fopen(argv[2], "r");
-    FILE* output_file = fopen(argv[3], "w");
-
-    /*  Проверка аргументов: их трое, тип верный,
-        входной и выходной файлы открылись */
-    if (argc != 4 ||
-        (strcmp(argv[1], "decode") &&
-            strcmp(argv[1], "encode")) ||
-        !input_file ||
-        !output_file) 
-    {
-        showHelp();
-        remove(argv[3]);
-        return -1;
-    }
-
-    /* Читаем первый байт
-    char bytebuf[4];
-    char valid_first_byte = 0;
-    char byte_count = 0;
-    while (!valid_first_byte || !feof(input_file)) {
-        fread(bytebuf[0], 1, 1, input_file);
-        
-        // Подходит шаблону первого бита?
-        if ((bytebuf[0]>>7)&1) {
-            for (int i = 1; i < 4; i++) 
-                if (bytebuf>>7-i)
-        }
-    }
-    */
+// макс. значение - 2^21
+int encode(uint32_t code_point, CodeUnits *code_units){
+	code_units->length = 1;
+	if (code_point > 0xFF>>1)	length++;
+	if (code_point > 0xFFFF>>5) length++;
+	if (code_point > 0xFFFFFF>>8) length++;
+	if (code_point > 0xFFFFFFFF>>11) return -1;
+		
+	for
 }
