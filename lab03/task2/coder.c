@@ -44,7 +44,21 @@ int encode(uint32_t code_point, CodeUnits *code_units){
 				bits_written = 8-code_units->length-1;
 			}
 			else {
-				code_units->code[i] = 0b10000000 + // help meeeeeeeee
+				// 00000000 00000000 10101000 11001100 
+				uint32_t altered_code = code_point;
+				// 	<< на количество НЕ значащих бит (32-value_bits[code_units->length-1])
+				altered_code<<=(32-value_bits[code_units->length-1]);
+				// 10101000 11001100 00000000 00000000
+				// 	<< на количество уже прочитанных бит и >> на столько же (занулить их)
+				altered_code<<=(bits_written)>>=(bits_written);
+				// 00001000 11001100 00000000 00000000
+				// 	>> на количество НЕ значащих бит
+				// 00000000 00000000 00001000 11001100
+				// 	Осталось (значащих-раннее прочитанных) бит от начала
+				// 	>> (осталось прочитать - 6)
+				// 00000000 00000000 00000000 00100011
+				
+				code_units->code[i] = 0b10000000 + code // help meeeeeeeee
 				bits_written+=6;
 			}
 			printBits(code_units->code[i]);
