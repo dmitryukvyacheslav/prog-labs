@@ -7,7 +7,9 @@ void printBits(uint8_t num){
     	// print last bit and shift left.
     	printf("%u",num&maxPow ? 1 : 0);
     	num = num<<1;
+    	
 	}
+	printf("\n");
 }
 
 // LUT
@@ -29,9 +31,7 @@ int encode(uint32_t code_point, CodeUnits *code_units){
 	int bits_written = 0;
 	if (code_units->length == 1) {
 		bits_written = 7;
-		code_units->code[0] = code_point>>1;
-		printBits(code_units->code[0]);
-		printf("\n");
+		code_units->code[0] = code_point;
 	}
 	else {
 		int len = code_units->length;
@@ -48,10 +48,7 @@ int encode(uint32_t code_point, CodeUnits *code_units){
 					+ 0b10000000;
 				bits_written += 6;
 			}
-			//printBits(code_units->code[i]);
-			//printf(" %d ", bits_written);
 		}
-		//printf("\n");
 	}
 	return 0;
 }
@@ -72,31 +69,27 @@ uint32_t decode(const CodeUnits *code_unit) {
 } 
 
 int read_next_code_unit(FILE *in, CodeUnits *code_units){
-	int is_byte_correct = 0;
-	int len = 0;
-	uint8_t code[4];
-	while(!is_byte_correct){
-		if (!fread(&code, sizeof(uint8_t), 1, in)) return -1; // EOF
-		for (int i = 0; i < MaxCodeLength; i++){
-			if (code[0] == (code[0]&header_masks[i])) {
-				len = i+1;
-				is_byte_correct = 1;
-				break;
-			}
+	uint8_t bytes[4];
+	code_units->length = 0;
+	while (!feof(in) & !code_units->length){
+		if (fread(bytes, sizeof(uint8_t), 1, in) != 1){
+			printBits(bytes[0]);
+			return -1;
 		}
+		printBits(bytes[0]);
+		for (int i = 0; i < MaxCodeLength; i++) {
+			if (bytes[0] != (bytes[0] & header_masks[i]))
+				continue;
+			code_units->length = i+1;
+			break;
+		}
+		printf("len: %zu\n", code_units->length);	
 	}
-	if (code_units->length == 1){
-		memcpy(code_units->code, code, len*sizeof(uint8_t));
-		return 0;
+	if (code_units->length > 1) {
+		if (fread(&(bytes[1]), sizeof(uint8_t), code_units->length-1, in) != code_units->length-1)
+			return -1;
 	}
-	// read next bytes
-	int bytes_left = code_units->length-1;
-	for (int i = 1; i <= bytes_left; i++){
-		if (!fread(code+i, sizeof(uint8_t), 1, in)) return -1; // EOF
-		if (code[i] != (code[i] & 0b10111111)) return -1; // data lost
-	}
-	code_units->length = len;
-	memcpy(code_units->code, code, len*sizeof(uint8_t));
+	memcpy(code_units->code, bytes, 4);
 	return 0;
 }
 
