@@ -9,7 +9,7 @@ void printBits(uint8_t num){
     	num = num<<1;
     	
 	}
-	printf("\n");
+	// printf("\n");
 }
 
 // LUT
@@ -18,15 +18,17 @@ static const int value_bits[MaxCodeLength] = {7, 11, 16, 21};
 static const int first_byte_masks[MaxCodeLength] = {0b01111111, 0b00011111, 0b00001111, 0b00000111};
 static const int header_masks[MaxCodeLength] = {0b01111111, 0b11011111, 0b11101111, 0b11110111};
 
-
-int encode(uint32_t code_point, CodeUnits *code_units){
-	if (code_point >= 2097152) return -1;
-
+static void get_length(uint32_t code_point, CodeUnits *code_units){
 	code_units->length = 1;
 	for (int i = 0; i < MaxCodeLength; i++){
 		if (code_point >= maxvals[i]) code_units->length++;
 		else break;
-	}										
+	}				
+}
+
+int encode(uint32_t code_point, CodeUnits *code_units){
+	if (code_point >= 2097152) return -1;
+	get_length(code_point, code_units); 			
 	
 	int bits_written = 0;
 	if (code_units->length == 1) {
@@ -72,22 +74,38 @@ int read_next_code_unit(FILE *in, CodeUnits *code_units){
 	uint8_t bytes[4];
 	code_units->length = 0;
 	while (!feof(in) & !code_units->length){
-		if (fread(bytes, sizeof(uint8_t), 1, in) != 1){
-			printBits(bytes[0]);
+		// Читаем по байту.
+		if (fread(bytes, sizeof(uint8_t), 1, in) != 1)
 			return -1;
-		}
 		printBits(bytes[0]);
+		// code_unit не может начинаться с 10.
+		if (bytes[0]>>6 == 0b00000010){
+			printf(" DATA LOST!!!\n");
+			continue;
+		}
+		// Находим количество байт в коде.
+		// Если не подошла ни одна маска - перед нами "битый" байт
 		for (int i = 0; i < MaxCodeLength; i++) {
 			if (bytes[0] != (bytes[0] & header_masks[i]))
 				continue;
 			code_units->length = i+1;
 			break;
 		}
-		printf("len: %zu\n", code_units->length);	
+		printf(" len: %zu\n", code_units->length);
 	}
 	if (code_units->length > 1) {
-		if (fread(&(bytes[1]), sizeof(uint8_t), code_units->length-1, in) != code_units->length-1)
+		if (fread(&(bytes[1]), sizeof(uint8_t), code_units->length-1, in) != code_units->length-1){
+			printf("Incomplete code, could not read %zu more bytes.\n", code_units->length-1);
 			return -1;
+		}
+		for (int i = 1; i < code_units->length; i++) {
+			printBits(bytes[i]);
+			if (bytes[i]>>6 != 0b00000010) {
+				printf(" INCOMPLETE CODE !!!\n");
+				return -1;
+			}
+			printf("\n");
+		}
 	}
 	memcpy(code_units->code, bytes, 4);
 	return 0;
