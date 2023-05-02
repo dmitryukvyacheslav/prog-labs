@@ -3,6 +3,7 @@
         "windows.h": "c",
         "unistd.h": "c",
         "typeinfo": "c",
-        "string_view": "c"
+        "string_view": "c",
+        "sstream": "c"
     }
 }

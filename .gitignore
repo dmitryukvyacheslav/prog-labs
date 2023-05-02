@@ -3,3 +3,7 @@ lab03/task2/a.out
 .gitignore
 .vscode/settings.json
 
+.vscode/settings.json
+lab04/src/mystring.o
+lab04/src/main.o
+.vscode/settings.json
