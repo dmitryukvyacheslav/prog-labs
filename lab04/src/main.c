@@ -1,11 +1,16 @@
 #include <cyg2win.h>
-#define MAX_DELIM_SIZE 64
-#define MAX_PATHSTR_SIZE 2048
+
 int main(void){
+	printf("Cyg2win - convert Cygwin-style Windows paths to original format\n");
     char delim[MAX_DELIM_SIZE];
+    printf("delim: ");
+    if (input(delim, MAX_DELIM_SIZE) return -1;
+    
     char pathstr[MAX_PATHSTR_SIZE];
-    input(delim, pathstr);
-    check(delim, pathstr);
+    printf("paths: ")
+    if (input(delim, MAX_PATHSTR_SIZE)) return -1;   
+    
+    if (!check(delim, pathstr)) return -1;	
     process(delim, pathstr);
     output(pathstr);
 }
