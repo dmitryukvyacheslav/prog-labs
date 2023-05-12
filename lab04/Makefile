@@ -1,4 +1,4 @@
-CFLAGS=-c -Wall -I./src
+CFLAGS=-c -Wall -I./src -g3
 LDFLAGS=
 SOURCES=src/main.c src/mystring.c src/cyg2win.c
 OBJECTS=$(SOURCES:.c=.o)

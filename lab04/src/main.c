@@ -2,15 +2,29 @@
 
 int main(void){
 	printf("Cyg2win - convert Cygwin-style Windows paths to original format\n");
-    char delim[MAX_DELIM_SIZE];
+    char delim[MAX_DELIM_SIZE+3]; // 64 symbols, 1 oversize canary, 1 for endline, 1 for dirty \n hack 
     printf("delim: ");
-    if (input(delim, MAX_DELIM_SIZE)) return -1;
+    if (input(delim, MAX_DELIM_SIZE) == -1) {
+		printf("Invalid input -- delimeter must be no longer than %d symbols.\n", MAX_DELIM_SIZE);
+		return -1;
+	}
     
-    char pathstr[MAX_PATHSTR_SIZE];
+    char pathstr[MAX_PATHSTR_SIZE+3]; // same but 2048 instead of 64...
     printf("paths: ");
-    if (input(delim, MAX_PATHSTR_SIZE)) return -1;   
+    if (input(delim, MAX_PATHSTR_SIZE) == -1) {
+		printf("Invalid input -- paths string must be no longer than %d symbols.\n", MAX_PATHSTR_SIZE);
+		return -1;
+	}  
     
-    //if (!check(delim, pathstr)) return -1;	
+    int invalid_index = 0;
+    if (check(delim, pathstr)) {
+		printf("%s\n", pathstr);
+		for(int i = 0; i < invalid_index-1; i++)
+			printf(" ");
+		printf("^-- forbidden symbol\n");
+		return -1;
+	}
+    return 0;
     //process(delim, pathstr);
     //output(pathstr);
 }

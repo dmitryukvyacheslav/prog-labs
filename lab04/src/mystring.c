@@ -6,18 +6,25 @@ size_t slen(const char *str){
     return i;
 };
 
+int schr(char str[], const char subchar) {
+	for(int i = 0; i < slen(str); i++)
+		if (str[i] == subchar) 
+			return i;
+	return -1; 
+}
+
 // I'm not sure of it
-int *stok(char *string, const char *delim, char *ptr[]) {
-    char* lexem = string;
-    ptr[0] = string;
-    int j = 0;
-    for (int i = 0; i < slen(string); i++) {
-        if (lexem[i] == delim) lexem[i] = '\0';
-        lexem = lexem + i + 1;
-        ptr[j] = lexem;
-        j++;
-    }
-    return j;
+int stok(char str[], const char delim, char *ptr[]) {
+    char* suf = str;
+    ptr[0] = str;
+    int i, j = 1;
+    while((i=schr(suf,delim))>=0){
+		suf[i] = '\0';
+		suf = suf + i + 1;
+		ptr[j] = suf;
+		j++;
+	}	
+	return j;
 }
 
 int suntok(char str[], char delim, char *ptr[], int cnt) {
