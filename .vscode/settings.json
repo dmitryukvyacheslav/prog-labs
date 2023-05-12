@@ -4,6 +4,7 @@
         "unistd.h": "c",
         "typeinfo": "c",
         "string_view": "c",
-        "sstream": "c"
+        "sstream": "c",
+        "error.h": "c"
     }
 }

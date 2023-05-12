@@ -1,4 +1,7 @@
 #include <mystring.h>
+#include <stdio.h>
+#include <errno.h>
+
 #define MAX_DELIM_SIZE 64
 #define MAX_PATHSTR_SIZE 2048
 #define MAX_PATHS 260
