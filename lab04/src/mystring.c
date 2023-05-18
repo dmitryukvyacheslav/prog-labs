@@ -1,4 +1,5 @@
 #include <mystring.h>
+#include <stdio.h>
 
 size_t slen(const char *str){
     int i = 0;
@@ -57,8 +58,36 @@ int scmp( const char * string1, const char * string2 ){
     return string1[i]-string2[i];
 }
 
+void sclean(char* in) {
+    int k = slen(in);
+    for (int i = 0; i < k; i++)
+        in[i] = '\0';
+}
+
 char *scpy (char *dst, const char *src) {
     for (int i = 0; i < slen(src); i++)
         dst[i] = src[i];
     return dst;
+}
+
+int sncmp( const char * string1, const char * string2, int n) {
+    int i = 0;
+    while (string1[i] == string2[i] && string1[i] != '\0' && string2[i] != '\0' && i < n-1) {
+        i++;
+    }
+    return string1[i]-string2[i];
+}
+
+char to_upper(char c){
+    if (c >= 'a' && c <= 'z')
+        return c - 0x20;
+    return c;
+}
+
+int sconcat(char* str1, char* str2){
+    for (int i = slen(str1), j = 0; i < slen(str1)+slen(str2); i++){
+        str1[i] = str2[j];
+        j++;
+    } 
+    return slen(str1);
 }

@@ -1,8 +1,8 @@
 #include <mystring.h>
 #include <stdio.h>
 #include <errno.h>
-
-#define MAX_DELIM_SIZE 64
+#include <stdlib.h>
+#define MAX_DELIM_SIZE 1
 #define MAX_PATHSTR_SIZE 8192
 #define MAX_PATH_LEN 260
 #define FORBIDDEN_SYMBOLS ":\\*?«<\">|"

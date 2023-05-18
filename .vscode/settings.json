@@ -5,6 +5,7 @@
         "typeinfo": "c",
         "string_view": "c",
         "sstream": "c",
-        "error.h": "c"
+        "error.h": "c",
+        "cstdlib": "c"
     }
 }
